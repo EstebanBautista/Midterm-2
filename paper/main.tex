@@ -3,41 +3,52 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{newtxtext,newtxmath}   % Times New Roman, as required by the journal
-\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[letterpaper,top=2.5cm,bottom=2.5cm,left=3cm,right=3cm]{geometry}
 \usepackage{graphicx,booktabs,amsmath,hyperref,xcolor,float}
 \usepackage[nocompress]{cite}
+\usepackage[skip=4pt]{caption}
+\captionsetup[figure]{position=top}
+\captionsetup[table]{position=top}
+\newcommand{\fuente}{\par\vspace{2pt}{\footnotesize Fuente: elaboración propia.}}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt}
 \graphicspath{{figures/}}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
 
-\title{Benchmarking de código C++ paralelo generado por inteligencia artificial: convolución 2D de imágenes con OpenMP}
-\author{Esteban David Muñoz Bautista \quad Isabela Gutierrez Reyes\\[6pt]
-\normalsize Pontificia Universidad Javeriana Cali, Facultad de Ingeniería\\
-\normalsize Carrera de Ingeniería de Sistemas y Computación\\
-\normalsize \texttt{estebanmunoz13@javerianacali.edu.co}\\
-\normalsize \texttt{isabelagutierrez@javerianacali.edu.co}}
-\date{}
+
 
 \begin{document}
 \sloppy
-\maketitle
-
-\section*{Resumen}
-\textbf{Objetivo:} cuantificar el efecto de la paralelización sobre una convolución 2D en C++ y comparar código paralelo generado por inteligencia artificial (IA) con código escrito por personas.
-\textbf{Materiales y métodos:} se evaluaron cuatro variantes: secuencial, paralela generada directamente por IA (Claude Opus 5.5), paralela generada por IA con optimización dirigida por el equipo y una implementación OpenMP de un repositorio público de 2016. Se usaron imágenes de 512² a 4096² píxeles, kernels de 3×3 a 11×11 y 1, 2, 4, 8 y 16 hilos, con 30 repeticiones por configuración y verificación bit a bit contra la versión secuencial.
-\textbf{Resultados y discusión:} en 4096² la variante de IA alcanzó speedups de 36,9 a 61,8 frente a la secuencial, salvo con 11×11 (12,7), donde perdió su vectorización; la optimización dirigida lo elevó a 48,0. La implementación humana, una paralelización directa sin optimizaciones de bajo nivel, logró entre 5,8 y 6,7. La escalabilidad relativa a un hilo fue similar en todas (6 a 10 con 16 hilos).
-\textbf{Conclusiones:} el código de IA fue correcto al primer intento y mucho más rápido que esta implementación humana directa por vectorización, pero mostró una debilidad dependiente de los datos que solo se detectó midiendo.
-
-\textbf{Palabras clave:} programación paralela; OpenMP; convolución 2D; código generado por IA; benchmarking; speedup.
+\begin{flushright}
+{\LARGE\bfseries Benchmarking AI-generated parallel C++ code: 2D image convolution with OpenMP\par}
+\vspace{10pt}
+{\Large Benchmarking de código C++ paralelo generado por inteligencia artificial: convolución 2D de imágenes con OpenMP\par}
+\end{flushright}
+\vspace{14pt}
+\begin{center}
+{\large Esteban David Muñoz Bautista \quad Isabela Gutierrez Reyes\par}
+\vspace{6pt}
+Pontificia Universidad Javeriana Cali, Facultad de Ingeniería\\
+Carrera de Ingeniería de Sistemas y Computación\\
+\texttt{estebanmunoz13@javerianacali.edu.co}\\
+\texttt{isabelagutierrez@javerianacali.edu.co}
+\end{center}
 
 \section*{Abstract}
 \textbf{Objective:} to quantify the effect of parallelization on a C++ 2D convolution and compare AI-generated and human-written parallel code.
 \textbf{Methods and materials:} four variants were evaluated: sequential, parallel generated directly by AI (Claude Opus 5.5), AI-generated with team-directed optimization, and an OpenMP implementation from a 2016 public repository. Images from 512² to 4096² pixels, 3×3 to 11×11 kernels and 1--16 threads were used, with 30 runs per configuration and bit-exact validation against the sequential version.
-\textbf{Results and discussion:} on 4096² images the AI variant reached speedups of 36.9--61.8 over the sequential code, except for 11×11 (12.7), where it lost vectorization; the directed optimization raised it to 48.0. The human implementation, a direct parallelization without low-level optimizations, reached 5.8--6.7. Scalability relative to one thread was similar for all variants (6--10 at 16 threads).
-\textbf{Conclusions:} the AI code was correct on the first attempt and much faster than this direct human implementation due to vectorization, but showed a data-dependent weakness that only measurement revealed.
+\textbf{Results and discussion:} on 4096² images the AI variant reached speedups of 36.9--61.8 over the sequential code, except for 11×11 (12.7), where it lost vectorization; the directed optimization raised it to 48.0. The human implementation, a direct (naive) parallelization, reached 5.8--6.7. Scalability relative to one thread was similar for all variants (6--10 at 16 threads).
+\textbf{Conclusions:} the AI code was correct on the first attempt and, through vectorization, much faster than the human implementation, but showed a data-dependent weakness that only measurement revealed. Future work should evaluate other AI models, an expert-optimized manual implementation and other architectures.
 
 \textbf{Keywords:} parallel programming; OpenMP; 2D convolution; AI-generated code; benchmarking; speedup.
+
+\section*{Resumen}
+\textbf{Objetivo:} cuantificar el efecto de la paralelización en una convolución 2D en C++ y comparar código paralelo generado por inteligencia artificial (IA) y escrito por personas.
+\textbf{Materiales y métodos:} se evaluaron cuatro variantes: secuencial, generada directamente por IA (Claude Opus 5.5), de IA con optimización dirigida por el equipo y una implementación OpenMP pública de 2016. Se usaron imágenes de 512² a 4096² píxeles, kernels de 3×3 a 11×11 y de 1 a 16 hilos, con 30 repeticiones por configuración y verificación bit a bit contra la versión secuencial.
+\textbf{Resultados y discusión:} en 4096² la variante de IA alcanzó speedups de 36,9 a 61,8 frente a la secuencial, salvo con 11×11 (12,7), donde perdió su vectorización; la optimización dirigida lo elevó a 48,0. La implementación humana, una paralelización directa (naive), logró entre 5,8 y 6,7. La escalabilidad respecto a un hilo fue similar (6 a 10 con 16 hilos).
+\textbf{Conclusiones:} el código de IA fue correcto al primer intento y, por vectorización, mucho más rápido que la implementación humana, pero mostró una debilidad dependiente de los datos que solo reveló la medición. Como trabajo futuro se propone evaluar otros modelos de IA, una implementación manual optimizada y otras arquitecturas.
+
+\textbf{Palabras clave:} programación paralela; OpenMP; convolución 2D; código generado por IA; benchmarking; speedup.
 
 \section{Introducción}
 Los asistentes de programación basados en modelos de lenguaje generan hoy código funcional en lenguajes de alto rendimiento \cite{chen2021codex}. Estudios recientes han evaluado su capacidad para producir núcleos paralelos con OpenMP, CUDA y otros modelos de programación, principalmente en términos de corrección y, en menor medida, de rendimiento \cite{godoy2023,nichols2024}. Para un ingeniero, la pregunta práctica no es solo si el código compila y es correcto, sino cuánto rendimiento entrega frente a una implementación escrita por personas y frente a la versión secuencial.
@@ -53,7 +64,7 @@ Todas las mediciones se realizaron en una sola máquina, descrita en la Tabla~\r
 \centering
 \caption{Entorno experimental.}
 \label{tab:entorno}
-\begin{tabular}{lp{11.5cm}}
+\begin{tabular}{lp{11cm}}
 \toprule
 Componente & Valor \\
 \midrule
@@ -67,6 +78,7 @@ Plan de energía & Perfil personalizado de alto rendimiento del usuario (``Plus-
 Análisis & Python 3.12.6, NumPy 2.1.3, Matplotlib 3.9.2 \\
 \bottomrule
 \end{tabular}
+\fuente
 \end{table}
 
 \subsection{Problema y contrato funcional}
@@ -126,7 +138,7 @@ que vale como máximo 1 en ausencia de efectos superlineales.
 
 Para decidir si dos variantes difieren, se aplicó la prueba U de Mann-Whitney bilateral (aproximación normal con corrección por empates y continuidad) a las 30 mediciones de cada una, con nivel de significancia $\alpha = 0{,}05$. Se eligió una prueba no paramétrica porque los tiempos no tienen por qué seguir una distribución normal. Como se hicieron 80 comparaciones, también se reporta el número de diferencias que siguen siendo significativas con la corrección de Bonferroni ($\alpha/80$). Además del promedio se reporta la mediana, que es menos sensible a ejecuciones atípicas.
 
-\section{Resultados}
+\section{Resultados y discusión}
 La Tabla~\ref{tab:resumen} resume, para cada imagen y kernel, el tiempo secuencial y el mayor speedup $S_p$ alcanzado por cada variante paralela, con el número de hilos en que se obtuvo. La tabla completa de $4096^2$ (tiempo medio $\pm \sigma$, $S_p$ y $E_p$ para cada $p$) está en el Anexo~\ref{anexo}; las de los demás tamaños y el CSV con las 7\,680 mediciones están en el repositorio.
 
 \begin{table}[H]
@@ -135,31 +147,35 @@ La Tabla~\ref{tab:resumen} resume, para cada imagen y kernel, el tiempo secuenci
 \label{tab:resumen}
 \small
 \input{tables/tabla_resumen}
+\fuente
 \end{table}
 
 En $4096^2$, la variante secuencial tardó 162,6, 344,5, 597,7 y 1\,429,8 ms con kernels de 3, 5, 7 y 11, respectivamente. Con un solo hilo, la variante de IA directa ya fue 4,7, 7,2 y 8,9 veces más rápida que la secuencial con kernels de 3, 5 y 7, pero solo 2,0 veces con $11\times11$. Con 16 hilos alcanzó $S_{16}$ = 36,9, 56,0, 55,5 y 12,7. La variante con optimización dirigida se comportó igual que la de IA directa en 3, 5 y 7 (diferencias menores que la variabilidad medida), y en $11\times11$ redujo el tiempo de un hilo de 710,7 a 182,9 ms y el de 16 hilos de 112,5 a 29,8 ms ($S_{16} = 48{,}0$). La implementación humana fue más lenta que la secuencial con un hilo ($S_1$ entre 0,64 y 0,81) y alcanzó $S_{16}$ entre 5,8 y 6,7. La Figura~\ref{fig:speedup} muestra $S_p$ y la Figura~\ref{fig:tiempo}, los tiempos con su desviación estándar.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\linewidth]{speedup_4096.pdf}
 \caption{Speedup $S_p = T_{seq}/T_p$ en imágenes de $4096^2$. La línea punteada es el speedup ideal $S_p = p$; la línea vertical marca $p = 8$ (núcleos físicos).}
 \label{fig:speedup}
+\includegraphics[width=0.85\linewidth]{speedup_4096.pdf}
+\fuente
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\linewidth]{tiempo_4096.pdf}
 \caption{Tiempo medio con barras de $\pm\sigma$ en imágenes de $4096^2$ (eje vertical en escala logarítmica). La línea discontinua es el tiempo secuencial.}
 \label{fig:tiempo}
+\includegraphics[width=0.85\linewidth]{tiempo_4096.pdf}
+\fuente
 \end{figure}
 
 La Figura~\ref{fig:relativo} muestra la escalabilidad respecto a cada variante con un hilo. Hasta 4 hilos las tres variantes están cerca del ideal ($S^{rel}_4$ entre 3,3 y 3,9). Con 8 hilos se ubicaron entre 5,0 y 7,0, y con 16 entre 6,1 y 9,6. La variante humana obtuvo el mayor speedup relativo con 16 hilos en los cuatro kernels (7,1 a 9,6 frente a 6,1 a 8,0 de las variantes de IA). Con $7\times7$ en $4096^2$, las variantes de IA fueron más lentas con 16 hilos que con 8 (10,8 frente a 9,7 ms en la variante de IA directa).
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\linewidth]{speedup_relativo_4096.pdf}
 \caption{Speedup relativo $T^{(v)}_1/T^{(v)}_p$ de cada variante en imágenes de $4096^2$. La línea vertical marca $p = 8$ (núcleos físicos).}
 \label{fig:relativo}
+\includegraphics[width=0.85\linewidth]{speedup_relativo_4096.pdf}
+\fuente
 \end{figure}
 
 La eficiencia respecto a la secuencial (Anexo~\ref{anexo}) es mayor que 1 en las variantes de IA, porque su ventaja con un hilo es mayor que 1, y disminuye con $p$: en $4096^2$ con $11\times11$, $E_{16}$ = 0,79 (IA directa), 3,00 (IA + optimización) y 0,36 (manual). La eficiencia paralela clásica $E^{rel}_p$ (\ref{eq:erel}) separa este efecto: en $4096^2$, con 8 hilos fue de 0,62 a 0,87 en las variantes de IA y de 0,66 a 0,80 en la manual; con 16 hilos bajó a 0,38--0,50 y 0,45--0,60, respectivamente.
@@ -178,11 +194,12 @@ En cuanto a la variabilidad, el $CV$ medio fue 1,2~\% con 1 hilo, 5,0~\% con 2, 
 \label{tab:sensibilidad}
 \small
 \input{tables/tabla_sensibilidad}
+\fuente
 \end{table}
 
 \textbf{Anclaje de hilos.} Con \texttt{OMP\_PROC\_BIND=close} el $CV$ bajó en 9 de las 12 configuraciones probadas, pero el tiempo medio cambió en ambas direcciones (por ejemplo, de 4,14 a 2,86 ms en una configuración y de 15,29 a 21,90 ms en otra). Con este entorno (Windows y libgomp) el efecto no fue concluyente, por lo que el experimento principal se mantuvo con la configuración por defecto.
 
-\section{Discusión}
+\subsection{Discusión}
 \textbf{IA frente a código humano.} La mayor diferencia entre variantes no proviene del paralelismo sino de la eficiencia por núcleo. La IA aplicó, sin que se le pidiera explícitamente, técnicas de bajo nivel (vectorización SSE2, búfer circular de filas, normalización con multiplicación) que dan una ventaja de 4,7 a 8,9 veces con un solo hilo. La implementación humana, en cambio, es una paralelización directa: su bucle aplanado calcula una división y un módulo por píxel y verifica límites en el bucle más interno, lo que explica que sea más lenta que la secuencial con un hilo. Por eso, en $S_{16}$ frente a la secuencial, el código de IA directa es entre 6,0 y 8,3 veces superior al humano con kernels de 3 a 7 (2,2 veces con $11\times11$), mientras que en escalabilidad relativa la implementación humana es ligeramente mejor. El experimento de sensibilidad muestra que esta diferencia no se debe a los flags: ni siquiera con \texttt{-O3 -march=native} el compilador vectoriza la convolución en las variantes secuencial y manual, porque sus bucles internos contienen verificaciones de límites (y, en la manual, división y módulo por píxel) que impiden la autovectorización. La IA evitó esas construcciones separando el relleno con ceros en un búfer. Es decir, el código humano usado aquí representa una implementación paralela típica, no una implementación manual optimizada; con este experimento no se puede afirmar que la IA supere a un experto que optimice a mano.
 
 \textbf{Debilidad dependiente de los datos.} El código de IA cumplió la especificación en todos los casos, pero su ruta rápida dependía de que los pesos cupieran en 16 bits con signo. Con el kernel binomial $11\times11$ (pesos de hasta 63\,504) cayó a un camino escalar y su speedup bajó de 55,5 ($7\times7$) a 12,7. Esta limitación no aparece en el prompt ni en las pruebas de corrección; solo se detectó al medir. La optimización O1, aprobada por el equipo tras leer el código, recuperó la vectorización sin cambiar el algoritmo ni perder exactitud, y fue la única que cambió el rendimiento de forma apreciable.
@@ -191,7 +208,7 @@ En cuanto a la variabilidad, el $CV$ medio fue 1,2~\% con 1 hilo, 5,0~\% con 2, 
 
 \textbf{Variabilidad.} La variabilidad crece con el número de hilos, especialmente con 8, cuando todos los núcleos físicos están ocupados y cualquier proceso del sistema operativo compite con un hilo de cómputo. Los tiempos con $CV$ alto corresponden mayoritariamente a ejecuciones cortas, donde una interrupción pesa más. Con 30 repeticiones, la prueba de Mann-Whitney detecta incluso diferencias sistemáticas de pocos puntos porcentuales. En kernels de 3, 5 y 7 esas diferencias entre la variante de IA directa y la optimizada aparecen en ambas direcciones y son pequeñas, lo que indica efectos del entorno (orden de ejecución, estado de caché, ubicación del código) más que una mejora o un empeoramiento atribuible a los cambios. La única diferencia grande y consistente es la de $11\times11$, atribuible a la optimización O1.
 
-\subsection{Amenazas a la validez}
+\subsubsection{Amenazas a la validez}
 \begin{itemize}
 \item \textbf{Una sola máquina y un solo sistema operativo:} los resultados dependen de la microarquitectura y del planificador de Windows; el experimento principal no fijó afinidad de hilos (la prueba con anclaje no fue concluyente).
 \item \textbf{Una sola generación de IA:} los modelos de lenguaje no son deterministas; otra ejecución del mismo prompt, u otro modelo, puede producir código distinto. Se registró un único intento, que fue exitoso.
@@ -213,7 +230,7 @@ El manuscrito se sometió a evaluación automática con Gemini Pro (Google, inte
 \textbf{Valoración.} El evaluador automático fue útil como lista de verificación: señaló aspectos que un revisor humano también pediría y que efectivamente faltaban. Sin embargo, no ejecuta el código ni accede a los datos, puede leer mal el PDF y a veces propone cambios que alteran la pregunta de investigación. Además, su puntaje mezcla el contenido con la presentación, y una diferencia de 8 puntos entre dos ejecuciones de un modelo no determinista no es una medida precisa de calidad. Por ello, sus recomendaciones se trataron como hipótesis que el equipo comprobó antes de aceptarlas. Algunas correcciones (eficiencia relativa, comparación con medianas, marca en $p = 8$, aclaraciones de objetivos y limitaciones, y la corrección de tres cifras de los experimentos complementarios detectadas en una revisión final del código y los datos) se incorporaron después de la evaluación final y no fueron evaluadas de nuevo.
 
 \section{Conclusiones}
-La paralelización con OpenMP redujo el tiempo de la convolución en todas las variantes. En imágenes de $4096^2$, el código generado directamente por IA alcanzó speedups de 36,9 a 61,8 frente a la versión secuencial con kernels de 3 a 7, frente a 5,8--6,7 de una implementación paralela directa (naive) escrita por personas; este resultado no permite afirmar que la IA supere a un programador que optimice a mano. La mayor parte de esa ventaja proviene de optimizaciones de bajo nivel por núcleo, no de una mejor escalabilidad: con respecto a un solo hilo, las tres variantes escalaron de forma similar (6 a 10 veces con 16 hilos), con un beneficio limitado de HyperThreading para el código vectorizado. El código de IA fue correcto al primer intento en todas las pruebas, pero tuvo una debilidad dependiente de los datos (pesos mayores que 32\,767) que redujo su speedup a 12,7 con kernels de $11\times11$; una optimización dirigida por el equipo y aplicada tras revisar el código la corrigió, con un speedup de 48,0. Para el desarrollo con IA, esto indica que la revisión del código generado y la medición sistemática siguen siendo necesarias, incluso cuando el código es correcto.
+La paralelización con OpenMP redujo el tiempo de la convolución en todas las variantes. En imágenes de $4096^2$, el código generado directamente por IA alcanzó speedups de 36,9 a 61,8 frente a la versión secuencial con kernels de 3 a 7, frente a 5,8--6,7 de una implementación paralela directa (naive) escrita por personas; este resultado no permite afirmar que la IA supere a un programador que optimice a mano. La mayor parte de esa ventaja proviene de optimizaciones de bajo nivel por núcleo, no de una mejor escalabilidad: con respecto a un solo hilo, las tres variantes escalaron de forma similar (6 a 10 veces con 16 hilos), con un beneficio limitado de HyperThreading para el código vectorizado. El código de IA fue correcto al primer intento en todas las pruebas, pero tuvo una debilidad dependiente de los datos (pesos mayores que 32\,767) que redujo su speedup a 12,7 con kernels de $11\times11$; una optimización dirigida por el equipo y aplicada tras revisar el código la corrigió, con un speedup de 48,0. Para el desarrollo con IA, esto indica que la revisión del código generado y la medición sistemática siguen siendo necesarias, incluso cuando el código es correcto. Como trabajo futuro se propone repetir el estudio con otros modelos de IA y con varias generaciones por modelo, comparar contra una implementación manual optimizada por expertos y medir en otras arquitecturas (por ejemplo, procesadores AMD o ARM y sistemas Linux con afinidad de hilos controlada).
 
 \section*{Declaración de uso de inteligencia artificial}
 La variante ``IA directa'' fue generada por Claude Opus 5.5 (Anthropic) a partir del prompt documentado en el repositorio. Las optimizaciones de la variante ``IA + optimización dirigida por el equipo'' fueron propuestas e implementadas con asistencia del mismo asistente, y su aplicación fue decidida por los autores. El asistente también se usó para preparar los scripts de medición y análisis y para apoyar la redacción del manuscrito; los autores revisaron el contenido y son responsables de él. La evaluación crítica del manuscrito se realizó con una herramienta de IA distinta, según se describe en la entrega.
@@ -233,6 +250,7 @@ El código de las cuatro variantes, las pruebas de equivalencia, el registro de 
 \label{tab:4096}
 \small
 \input{tables/tabla_4096_a}
+\fuente
 \end{table}
 
 \begin{table}[H]
@@ -241,6 +259,7 @@ El código de las cuatro variantes, las pruebas de equivalencia, el registro de 
 \label{tab:4096b}
 \small
 \input{tables/tabla_4096_b}
+\fuente
 \end{table}
 
 \end{document}
