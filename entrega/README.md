@@ -10,5 +10,6 @@ Archivos en el orden del proceso pedido en el enunciado:
 | `paper_v2.pdf` | Versión corregida según las observaciones aceptadas |
 | `evaluacion_final.pdf` | Respuesta de Gemini Pro sobre `paper_v2.pdf` (88/100), en un chat nuevo |
 | `paper_final.pdf` | Versión final, con la sección "Reflexión sobre la evaluación mediante IA" |
+| `paper_final_revision_ciega.pdf` | La misma versión final para revisión ciega, como pide la plantilla de la revista: sin autores, afiliación, correos ni enlace al repositorio |
 | `decisiones_evaluacion.md` | Cada observación de ambas evaluaciones con la decisión del equipo (aceptada, parcial o rechazada) y la evidencia |
 | `paper_overleaf.zip` | Fuente LaTeX lista para subir a Overleaf ("New Project → Upload Project") |

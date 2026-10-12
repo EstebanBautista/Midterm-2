@@ -11,4 +11,4 @@
 | `analyze.py` | Estadísticas, figuras y tablas LaTeX a partir de `results/raw.csv` |
 | `analyze_extra.py` | Prueba de Mann-Whitney y tabla de sensibilidad |
 | `test_analyze.py` | Pruebas unitarias del análisis (`cd scripts && python -m unittest test_analyze`) |
-| `build_paper.sh` | Compila `paper/main.tex` a PDF con tectonic |
+| `build_paper.sh` | Compila con tectonic `paper/main.tex` (versión con autores) y `paper/main_ciega.tex` (versión para revisión ciega) |

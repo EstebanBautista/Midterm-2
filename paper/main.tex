@@ -25,6 +25,11 @@
 {\Large Benchmarking de código C++ paralelo generado por inteligencia artificial: convolución 2D de imágenes con OpenMP\par}
 \end{flushright}
 \vspace{14pt}
+\ifdefined\versionciega
+\begin{center}
+{\large Versión para revisión ciega: autores y afiliación omitidos.\par}
+\end{center}
+\else
 \begin{center}
 {\large Esteban David Muñoz Bautista \quad Isabela Gutierrez Reyes\par}
 \vspace{6pt}
@@ -33,6 +38,7 @@ Carrera de Ingeniería de Sistemas y Computación\\
 \texttt{estebanmunoz13@javerianacali.edu.co}\\
 \texttt{isabelagutierrez@javerianacali.edu.co}
 \end{center}
+\fi
 
 \section*{Abstract}
 \textbf{Objective:} to quantify the effect of parallelization on a C++ 2D convolution and compare AI-generated and human-written parallel code.
@@ -236,7 +242,7 @@ La paralelización con OpenMP redujo el tiempo de la convolución en todas las v
 La variante ``IA directa'' fue generada por Claude Opus 5.5 (Anthropic) a partir del prompt documentado en el repositorio. Las optimizaciones de la variante ``IA + optimización dirigida por el equipo'' fueron propuestas e implementadas con asistencia del mismo asistente, y su aplicación fue decidida por los autores. El asistente también se usó para preparar los scripts de medición y análisis y para apoyar la redacción del manuscrito; los autores revisaron el contenido y son responsables de él. La evaluación crítica del manuscrito se realizó con una herramienta de IA distinta, según se describe en la entrega.
 
 \section*{Disponibilidad de código y datos}
-El código de las cuatro variantes, las pruebas de equivalencia, el registro de la interacción con la IA, los datos crudos (7\,680 mediciones), el resumen estadístico y los scripts para reproducir el experimento (\texttt{scripts/run\_bench.sh}) y este documento (\texttt{scripts/build\_paper.sh}) están en el repositorio del proyecto: \url{https://github.com/EstebanBautista/Midterm-2}.
+El código de las cuatro variantes, las pruebas de equivalencia, el registro de la interacción con la IA, los datos crudos (7\,680 mediciones), el resumen estadístico y los scripts para reproducir el experimento (\texttt{scripts/run\_bench.sh}) y este documento (\texttt{scripts/build\_paper.sh}) están en el repositorio del proyecto: \ifdefined\versionciega [enlace omitido para la revisión ciega]\else\url{https://github.com/EstebanBautista/Midterm-2}\fi.
 
 \bibliographystyle{IEEEtran}
 \bibliography{referencias}
