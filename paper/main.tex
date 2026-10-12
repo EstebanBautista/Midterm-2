@@ -12,8 +12,11 @@
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
 
 \title{Benchmarking de código C++ paralelo generado por inteligencia artificial: convolución 2D de imágenes con OpenMP}
-\author{Esteban David Muñoz Bautista\thanks{Pontificia Universidad Javeriana Cali, Facultad de Ingeniería, Carrera de Ingeniería de Sistemas y Computación. Correo: estebanmunoz13@javerianacali.edu.co}
-\and Isabela Gutierrez Reyes\thanks{Pontificia Universidad Javeriana Cali, Facultad de Ingeniería, Carrera de Ingeniería de Sistemas y Computación. Correo: isabelagutierrez@javerianacali.edu.co}}
+\author{Esteban David Muñoz Bautista \quad Isabela Gutierrez Reyes\\[6pt]
+\normalsize Pontificia Universidad Javeriana Cali, Facultad de Ingeniería\\
+\normalsize Carrera de Ingeniería de Sistemas y Computación\\
+\normalsize \texttt{estebanmunoz13@javerianacali.edu.co}\\
+\normalsize \texttt{isabelagutierrez@javerianacali.edu.co}}
 \date{}
 
 \begin{document}
@@ -23,14 +26,16 @@
 \section*{Resumen}
 \textbf{Objetivo:} cuantificar el efecto de la paralelización sobre una convolución 2D en C++ y comparar código paralelo generado por inteligencia artificial (IA) con código escrito por personas.
 \textbf{Materiales y métodos:} se evaluaron cuatro variantes: secuencial, paralela generada directamente por IA (Claude Opus 5.5), paralela generada por IA con optimización dirigida por el equipo y una implementación OpenMP de un repositorio público de 2016. Se usaron imágenes de 512² a 4096² píxeles, kernels de 3×3 a 11×11 y 1, 2, 4, 8 y 16 hilos, con 30 repeticiones por configuración y verificación bit a bit contra la versión secuencial.
-\textbf{Resultados y discusión:} en 4096² la variante de IA alcanzó speedups de 36,9 a 61,8 frente a la secuencial, salvo con 11×11 (12,7), donde perdió su vectorización; la optimización dirigida lo elevó a 48,0. La implementación humana, una paralelización directa sin optimizaciones de bajo nivel, logró entre 5,8 y 6,7. La escalabilidad relativa a un hilo fue similar en todas (6 a 10 con 16 hilos).\textbf{Conclusiones:} el código de IA fue correcto al primer intento y mucho más rápido que esta implementación humana directa por vectorización, pero mostró una debilidad dependiente de los datos que solo se detectó midiendo.
+\textbf{Resultados y discusión:} en 4096² la variante de IA alcanzó speedups de 36,9 a 61,8 frente a la secuencial, salvo con 11×11 (12,7), donde perdió su vectorización; la optimización dirigida lo elevó a 48,0. La implementación humana, una paralelización directa sin optimizaciones de bajo nivel, logró entre 5,8 y 6,7. La escalabilidad relativa a un hilo fue similar en todas (6 a 10 con 16 hilos).
+\textbf{Conclusiones:} el código de IA fue correcto al primer intento y mucho más rápido que esta implementación humana directa por vectorización, pero mostró una debilidad dependiente de los datos que solo se detectó midiendo.
 
 \textbf{Palabras clave:} programación paralela; OpenMP; convolución 2D; código generado por IA; benchmarking; speedup.
 
 \section*{Abstract}
 \textbf{Objective:} to quantify the effect of parallelization on a C++ 2D convolution and compare AI-generated and human-written parallel code.
 \textbf{Methods and materials:} four variants were evaluated: sequential, parallel generated directly by AI (Claude Opus 5.5), AI-generated with team-directed optimization, and an OpenMP implementation from a 2016 public repository. Images from 512² to 4096² pixels, 3×3 to 11×11 kernels and 1--16 threads were used, with 30 runs per configuration and bit-exact validation against the sequential version.
-\textbf{Results and discussion:} on 4096² images the AI variant reached speedups of 36.9--61.8 over the sequential code, except for 11×11 (12.7), where it lost vectorization; the directed optimization raised it to 48.0. The human implementation, a direct parallelization without low-level optimizations, reached 5.8--6.7. Scalability relative to one thread was similar for all variants (6--10 at 16 threads).\textbf{Conclusions:} the AI code was correct on the first attempt and much faster than this direct human implementation due to vectorization, but showed a data-dependent weakness that only measurement revealed.
+\textbf{Results and discussion:} on 4096² images the AI variant reached speedups of 36.9--61.8 over the sequential code, except for 11×11 (12.7), where it lost vectorization; the directed optimization raised it to 48.0. The human implementation, a direct parallelization without low-level optimizations, reached 5.8--6.7. Scalability relative to one thread was similar for all variants (6--10 at 16 threads).
+\textbf{Conclusions:} the AI code was correct on the first attempt and much faster than this direct human implementation due to vectorization, but showed a data-dependent weakness that only measurement revealed.
 
 \textbf{Keywords:} parallel programming; OpenMP; 2D convolution; AI-generated code; benchmarking; speedup.
 
