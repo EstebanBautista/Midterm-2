@@ -92,7 +92,7 @@ def plot_metric(summary, n, metric, ylabel, path):
             ax.errorbar(xs, ys, yerr=err, marker="o", capsize=3, label=LABELS[v])
         if metric == "mean" and ("seq", n, ks, 1) in summary:
             ax.axhline(summary[("seq", n, ks, 1)]["mean"], color="gray", ls="--", label=LABELS["seq"])
-        if metric == "sp":
+        if metric in ("sp", "sp_self"):
             ax.plot(threads, threads, color="gray", ls=":", label="Ideal")
         if metric == "ep":
             ax.axhline(1.0, color="gray", ls=":", label="Ideal")
@@ -167,6 +167,8 @@ def main(raw_path):
         plot_metric(summary, n, "mean", "Tiempo (ms)", os.path.join(fig_dir, f"tiempo_{n}"))
         plot_metric(summary, n, "sp", "Speedup $S_p$", os.path.join(fig_dir, f"speedup_{n}"))
         plot_metric(summary, n, "ep", "Eficiencia $E_p$", os.path.join(fig_dir, f"eficiencia_{n}"))
+        plot_metric(summary, n, "sp_self", "Speedup relativo $T_1/T_p$",
+                    os.path.join(fig_dir, f"speedup_relativo_{n}"))
         write_latex_table(summary, n, os.path.join(tab_dir, f"tabla_{n}.tex"))
     with open(os.path.join(tab_dir, "tabla_resumen.tex"), "w", encoding="utf-8") as f:
         write_overview_table(summary, f)
