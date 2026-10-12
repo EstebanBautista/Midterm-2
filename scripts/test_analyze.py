@@ -70,6 +70,16 @@ class AnalyzeTest(unittest.TestCase):
         tex = buf.getvalue()
         self.assertIn("IA directa & 3 & 2 & 5.00 & 2.50 & 0.50", tex)
 
+    def test_mann_whitney_csv_has_one_row_per_shared_config(self):
+        import os
+        import tempfile
+        path = os.path.join(tempfile.mkdtemp(), "mw.csv")
+        analyze.write_mann_whitney_csv(self.rows, "ai", "seq", path)
+        lines = open(path, encoding="utf-8").read().strip().splitlines()
+        self.assertEqual(lines[0], "n,ksize,threads,p_value,median_a_ms,median_b_ms")
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(lines[1].startswith("8,3,1,"))
+
     def test_missing_seq_raises(self):
         rows = [r for r in self.rows if r["variant"] != "seq"]
         s = analyze.summarize(rows)

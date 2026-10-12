@@ -9,10 +9,12 @@ Autores: Esteban David Muñoz Bautista, Isabela Gutierrez Reyes — Pontificia U
 
 ## Reproducir
 1. Instalar GCC (WinLibs): `winget install --id BrechtSanders.WinLibs.POSIX.UCRT -e`
-2. Benchmark completo (compila, prueba, registra entorno, mide y analiza): `bash scripts/run_bench.sh`
-3. Experimento de sensibilidad `-O3 -march=native` (4096²): `bash scripts/run_sensitivity.sh`
-4. Paper: descargar tectonic 0.15.0 en `tools/` y ejecutar `bash scripts/build_paper.sh`
-5. Pruebas: `bash scripts/build.sh && ./build/test_convolve.exe` y `cd scripts && python -m unittest test_analyze`
+2. Benchmark completo (compila, prueba, registra entorno, mide y analiza, incluida la prueba de Mann-Whitney): `bash scripts/run_bench.sh`
+3. Experimento de sensibilidad `-O3 -march=native` (4096²) y su tabla: `bash scripts/run_sensitivity.sh`
+4. Prueba de anclaje de hilos (12 configuraciones con 8 hilos): `bash scripts/run_binding.sh`
+5. Solo análisis complementario sobre datos existentes: `python scripts/analyze_extra.py`
+6. Paper: descargar tectonic 0.15.0 en `tools/` y ejecutar `bash scripts/build_paper.sh`
+7. Pruebas: `bash scripts/build.sh && ./build/test_convolve.exe` y `cd scripts && python -m unittest test_analyze`
 
 ## Estructura
 - `src/` variantes (`seq.cpp`, `ai.cpp`, `ai_opt.cpp`, `manual.cpp`), contrato común y harness (`bench.cpp`)

@@ -11,7 +11,7 @@
 ## Adaptaciones (ver adaptacion.diff)
 1. Firma común `manual::convolve` en lugar de la clase `Convolutionmp` con `std::vector<int>`.
 2. Bordes: el original usa bordes periódicos (wrap-around); se cambia a zero-padding para cumplir el contrato común.
-3. Normalización final con `normalize_pixel` (el original deja la suma cruda en un `int`).
+3. Normalización final con `normalize_pixel`, acumulando en una variable local `int32_t acc` por píxel (el original suma directamente con `output[...] +=` y deja la suma cruda en un `int`).
 4. Número de hilos con `num_threads(nthreads)`; el original usa el valor por defecto del runtime.
 5. Se elimina la medición interna (`stopwatch`) y la escritura a archivo.
 Se conservan: el bucle aplanado `z = 0..rows*columns-1`, el cálculo `x = z/columns, y = z%columns`,

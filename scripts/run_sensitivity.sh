@@ -9,3 +9,4 @@ LIB_SRC=$(ls src/*.cpp | grep -v 'src/bench.cpp')
 ./build/test_convolve_o3native.exe
 "$CXX" -O3 -march=native -fopenmp -std=c++17 -static $LIB_SRC src/bench.cpp -o build/bench_o3native.exe
 ./build/bench_o3native.exe --sizes 4096 --out results/sensitivity_o3native/raw.csv
+python scripts/analyze_extra.py

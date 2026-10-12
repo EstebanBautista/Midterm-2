@@ -108,6 +108,17 @@ def compare_variants(rows, a, b):
     return out
 
 
+def write_mann_whitney_csv(rows, a, b, path):
+    """Writes compare_variants(rows, a, b) as CSV, one row per shared (n, ksize, threads)."""
+    cmp = compare_variants(rows, a, b)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f, lineterminator="\n")
+        w.writerow(["n", "ksize", "threads", "p_value", "median_a_ms", "median_b_ms"])
+        for k in sorted(cmp):
+            c = cmp[k]
+            w.writerow([*k, f"{c['p']:.6f}", f"{c['median_a']:.4f}", f"{c['median_b']:.4f}"])
+
+
 def write_summary_csv(summary, path):
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
