@@ -22,8 +22,8 @@ Criterios de éxito:
 
 | Tema | Decisión |
 |---|---|
-| Compilador | GCC 14 de 64 bits nativo en Windows (WinLibs, hilos POSIX), OpenMP. El MinGW 6.3 actual no se usa. |
-| Variante manual | Implementación real de GitHub/GitLab escrita por personas, licencia abierta, adaptada solo a la firma común; diff de adaptación documentado y cita en el paper. |
+| Compilador | GCC ≥ 14 de 64 bits nativo en Windows (WinLibs POSIX/UCRT vía winget; hoy publica GCC 16.2), OpenMP. El MinGW 6.3 actual no se usa. La versión exacta se registra en el paper. |
+| Variante manual | `rdb987/2DConvolution` (`src/hpc_conv_omp.cpp`, commit `d5b3922`, 2016: anterior a los LLM de código, autoría humana verificable). Aritmética entera y kernel de tamaño arbitrario. Se adapta solo lo necesario (bordes con zero-padding en lugar de periódicos, normalización final, firma común); diff documentado y cita en el paper. El repositorio original no declara licencia: uso académico con cita, en repositorio privado. |
 | Variante IA directa | Generada por un subagente de Claude (Opus 5.5) en contexto limpio a partir de un prompt fijo; código usado sin modificaciones. Prompt y respuesta guardados en `ai_log/`. |
 | Variante IA + opt. | Nombre en el paper: "IA + optimización dirigida por el equipo". Claude propone optimizaciones justificadas, el equipo decide cuáles aplicar y Claude las implementa. Se describe así en la metodología; nunca se presenta como código manual. |
 | Evaluación del paper | La realiza el equipo en ChatGPT o Gemini Pro con el prompt exacto del enunciado (evaluación inicial y final, mismo modelo, chat nuevo cada vez). Claude no evalúa el paper. |
