@@ -13,3 +13,22 @@
 | 4 | La variante manual es ineficiente; se sobreestima a la IA (importante) | Aceptada | Ya estaba en la discusión y en las amenazas, pero el resumen y las conclusiones no lo decían. | Resumen y conclusiones precisan "implementación paralela directa (naive)". |
 | 5 | La explicación de HyperThreading es especulativa (menor) | Parcial | Se acepta reforzar la redacción. No se instrumenta con VTune por alcance y tiempo. | Redacción explícita como inferencia no verificada. |
 | 6 | Figura de tiempo poco legible (menor) | Aceptada | Las curvas de IA quedan comprimidas abajo. | Eje vertical en escala logarítmica. |
+
+---
+
+# Decisiones del equipo sobre la evaluación final
+
+- Evaluador: Gemini Pro (Google), chat nuevo, mismo prompt.
+- Documento evaluado: `paper_v2.pdf`.
+- Puntaje final: 88/100 (rigor experimental 18/20, corrección técnica 16/20, análisis de resultados 18/20, reproducibilidad 20/20, calidad científica 16/20).
+- El equipo aprobó todas las posturas y eligió aplicar los cambios aceptados en la versión final, declarando que se hicieron después de la evaluación final y no fueron re-evaluados.
+
+| # | Observación (clasificación del evaluador) | Decisión | Justificación y evidencia | Cambio en la versión final |
+|---|---|---|---|---|
+| C1 | Se confunden vectorización y paralelización; deshabilitar SSE2 en el código de IA (crítica) | Parcial | Se acepta aclarar que se evalúa la capacidad combinada SIMD + hilos. Se rechaza quitar SSE2: modificaría el código de la IA, que dejaría de ser "IA directa", y el speedup relativo ya aísla la escalabilidad por hilos. | Objetivos y métricas aclaran qué mide cada indicador. |
+| C2 | Explicar que la falta de vectorización se debe a la estructura del código (crítica) | Aceptada (con precisión) | La causa son las verificaciones de límites dentro del bucle interno y, en la variante manual, la división y el módulo por píxel; no "aritmética de punteros compleja" como sugiere el evaluador. | Párrafo en la discusión. |
+| I1 | La Ecuación 2 usa "mix" en lugar de "max" (importante) | Rechazada | Error de lectura: con babel en español LaTeX escribe "máx" y "mín"; el texto extraído del PDF es `m´ax`, que el evaluador leyó como "mix". La ecuación siempre usó máximo. | Ninguno. |
+| I2 | Reportar eficiencia relativa E_rel = S_rel/p (importante) | Aceptada | Los datos ya existían. | Ecuación, columna en las tablas del anexo y resultados. |
+| I3 | Usar la mediana para el speedup o filtrar atípicos (importante) | Parcial | Se calculó el speedup con medianas: diferencia típica 1,3 %, 21 de 240 configuraciones con diferencia > 10 %, todas con tiempos medios menores que 30 ms; en 4096² no cambia el orden ni las conclusiones. Se mantiene la media porque el enunciado la exige. | Párrafo en resultados. |
+| M1 | Marcar p = 8 en las gráficas (menor) | Aceptada | Facilita leer el paso de núcleos físicos a lógicos. | Línea vertical en p = 8. |
+| M2 | Turbo Boost / SpeedStep no controlados (menor) | Aceptada como limitación | No se modificó la BIOS. | Nueva amenaza a la validez. |
