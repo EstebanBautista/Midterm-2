@@ -31,6 +31,7 @@ class AnalyzeTest(unittest.TestCase):
         self.assertAlmostEqual(ai2["sp"], 2.2)
         self.assertAlmostEqual(ai2["ep"], 1.1)
         self.assertAlmostEqual(ai2["sp_self"], 2.0)
+        self.assertAlmostEqual(ai2["ep_rel"], 1.0)
 
     def test_overview_table_lists_seq_time_and_best_speedup(self):
         buf = io.StringIO()

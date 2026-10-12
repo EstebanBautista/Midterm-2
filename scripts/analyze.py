@@ -58,6 +58,7 @@ def add_speedup(summary):
         st["sp"] = seq["mean"] / st["mean"]
         st["ep"] = st["sp"] / p
         st["sp_self"] = own1["mean"] / st["mean"] if own1 else float("nan")
+        st["ep_rel"] = st["sp_self"] / p
 
 
 def mann_whitney_p(a, b):
@@ -112,12 +113,13 @@ def write_summary_csv(summary, path):
         w = csv.writer(f)
         w.writerow(["variant", "n", "ksize", "threads", "mean_ms", "std_ms", "min_ms",
                     "max_ms", "cv", "runs", "speedup", "efficiency", "speedup_self",
-                    "median_ms"])
+                    "median_ms", "efficiency_self"])
         for key in sorted(summary, key=lambda k: (k[1], k[2], VARIANT_ORDER.index(k[0]), k[3])):
             s = summary[key]
             w.writerow([*key, f"{s['mean']:.4f}", f"{s['std']:.4f}", f"{s['min']:.4f}",
                         f"{s['max']:.4f}", f"{s['cv']:.4f}", s["n"], f"{s['sp']:.4f}",
-                        f"{s['ep']:.4f}", f"{s['sp_self']:.4f}", f"{s['median']:.4f}"])
+                        f"{s['ep']:.4f}", f"{s['sp_self']:.4f}", f"{s['median']:.4f}",
+                        f"{s['ep_rel']:.4f}"])
 
 
 def plot_metric(summary, n, metric, ylabel, path):
@@ -147,6 +149,8 @@ def plot_metric(summary, n, metric, ylabel, path):
             ax.axhline(1.0, color="gray", ls=":", label="Ideal")
         if metric == "mean":
             ax.set_yscale("log")
+        if 8 in threads and max(threads) > 8:
+            ax.axvline(8, color="red", ls="--", lw=0.8, alpha=0.6, label="8 núcleos físicos")
         ax.set_xscale("log", base=2)
         ax.set_xticks(threads)
         ax.set_xticklabels([str(t) for t in threads])
@@ -166,9 +170,9 @@ def write_latex_table(summary, n, path, ksizes=None):
     ksizes = sorted(ksizes or {k[2] for k in summary if k[1] == n})
     threads = sorted({k[3] for k in summary if k[1] == n})
     lines = [
-        "\\begin{tabular}{llrrrr}",
+        "\\begin{tabular}{llrrrrr}",
         "\\toprule",
-        "Kernel & Variante & $p$ & $\\bar{T}$ (ms) $\\pm\\sigma$ & $S_p$ & $E_p$ \\\\",
+        "Kernel & Variante & $p$ & $\\bar{T}$ (ms) $\\pm\\sigma$ & $S_p$ & $E_p$ & $E^{rel}_p$ \\\\",
         "\\midrule",
     ]
     for ks in ksizes:
@@ -178,7 +182,7 @@ def write_latex_table(summary, n, path, ksizes=None):
                 if s is None:
                     continue
                 lines.append(f"{ks}$\\times${ks} & {LABELS[v]} & {p} & "
-                             f"{s['mean']:.2f} $\\pm$ {s['std']:.2f} & {s['sp']:.2f} & {s['ep']:.2f} \\\\")
+                             f"{s['mean']:.2f} $\\pm$ {s['std']:.2f} & {s['sp']:.2f} & {s['ep']:.2f} & {s['ep_rel']:.2f} \\\\")
         lines.append("\\midrule")
     lines[-1] = "\\bottomrule"
     lines.append("\\end{tabular}")
