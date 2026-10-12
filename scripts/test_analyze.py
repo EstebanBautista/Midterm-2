@@ -36,7 +36,7 @@ class AnalyzeTest(unittest.TestCase):
         buf = io.StringIO()
         analyze.write_overview_table(self.s, buf)
         tex = buf.getvalue()
-        self.assertIn(r"8$	imes$8 & 3$	imes$3 & 11.00", tex)
+        self.assertIn(r"8$\times$8 & 3$\times$3 & 11.00", tex)
         self.assertIn("2.20 (2)", tex)
 
     def test_missing_seq_raises(self):
