@@ -4,6 +4,7 @@ const std::vector<Variant>& variants() {
     static const std::vector<Variant> v = {
         {"seq", seq::convolve},
         {"ai", ai::convolve},
+        {"manual", manual::convolve},
     };
     return v;
 }

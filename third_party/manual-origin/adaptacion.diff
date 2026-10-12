@@ -1,0 +1,117 @@
+diff --git a/third_party/manual-origin/hpc_conv_omp.cpp b/src/manual.cpp
+index 6c818b1..6018e46 100644
+--- a/third_party/manual-origin/hpc_conv_omp.cpp
++++ b/src/manual.cpp
+@@ -1,83 +1,34 @@
+-#include<iostream>
+-#include "conv_openmp.h"
+-#include "stopwatch.hpp"
+-#ifdef _OPENMP
+-#include<omp.h>
+-#endif
++// Adapted from rdb987/2DConvolution, src/hpc_conv_omp.cpp, commit d5b3922 (2016).
++// See third_party/manual-origin/SOURCE.md for the list of adaptations.
++#include "convolve.hpp"
++#include <omp.h>
+ 
++namespace manual {
+ 
+-Convolutionmp::Convolutionmp(std::vector<int> input_matrix, std::vector<int> kernel_matrix, int rows, int columns, int krows, int kcolumns)
+-		: rows(rows),columns(columns),krows(krows), kcolumns(kcolumns)
+-		{
+-			
+-			Reset();
+-			input.reserve(rows*columns);
+-			kernel.reserve(krows*kcolumns);
+-			input=input_matrix;
+-			kernel=kernel_matrix;
+-		}
++void convolve(const uint8_t* input, uint8_t* out, int columns, int rows,
++              const int32_t* kernel, int krows, int nthreads) {
++    const int kcolumns = krows;
++    int32_t sum = 0;
++    for (int i = 0; i < krows * kcolumns; ++i) sum += kernel[i];
+ 
+-void Convolutionmp::Reset(){
+-	output.resize(rows*columns,0);
++    int a, b, x, y;
++    #pragma omp parallel num_threads(nthreads)
++    #pragma omp for private(x, y, a, b)
++    for (int z = 0; z < rows * columns; ++z) {
++        x = z / columns;
++        y = z % columns;
++        int32_t acc = 0;
++        for (int i = 0; i < krows; ++i) {
++            for (int j = 0; j < kcolumns; ++j) {
++                a = x + i - krows / 2;
++                b = y + j - kcolumns / 2;
++                if (a < 0 || a > rows - 1 || b < 0 || b > columns - 1)
++                    continue;  // adaptation: zero padding instead of wrap-around
++                acc += input[a * columns + b] * kernel[i * kcolumns + j];
++            }
++        }
++        out[x * columns + y] = normalize_pixel(acc, sum);
++    }
+ }
+ 
+-void Convolutionmp::Compute(){
+-	int index1, index2, a, b,x,y;
+-	stopwatch sw;
+-	sw.reset();
+-	sw.start();
+-	#pragma omp parallel
+-	# pragma omp for private(x,y,a, b, index1, index2) 
+-	for(int z=0;z<rows*columns;++z){
+-		x=z/columns;
+-		y=z%columns;
+-		for(int i=0;i<krows;++i){
+-			for(int j=0;j<kcolumns;++j){
+-				a=x+i-krows/2;	
+-				b=y+j-kcolumns/2;					
+-				if(a<0)
+-					index1=rows+a;
+-				else if(a>rows-1)
+-					index1=a-rows;
+-				else 
+-					index1=a;
+-				
+-				if(b<0)
+-					index2=columns+b;
+-				else if(b>columns-1)
+-					index2=b-columns;
+-				else 
+-					index2=b;
+-				
+-				output[x*columns+y]+=input[index1*columns+index2]*kernel[i*kcolumns+j];
+-					
+-			}
+-		}
+-	}
+-	sw.stop();
+-	std::cout << "Elapsed time: " << sw.elapsed_ms() << " ms" << std::endl;
+-}
+-void Convolutionmp::Print_to_File(std::ofstream &f)
+-{
+-	if(!f)
+-	{
+-		std::cerr<<"Cannot open output file"<<std::endl;
+-		return ;
+-	}	
+-	for(int i = 0; i <rows; i++){
+-			for(int j = 0; j < columns; j++){
+-				if(j!= columns-1)
+-					f<<output[i*columns+j]<<' ';
+-				else
+-					f<<output[i*columns+j];
+-			}
+-			f<<std::endl;
+-	}
+-	f.close();
+-}
+-	
+-Convolutionmp::~Convolutionmp() {}
+-					
+-					
+-				
+-
++}  // namespace manual
