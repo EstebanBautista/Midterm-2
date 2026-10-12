@@ -39,6 +39,36 @@ class AnalyzeTest(unittest.TestCase):
         self.assertIn(r"8$\times$8 & 3$\times$3 & 11.00", tex)
         self.assertIn("2.20 (2)", tex)
 
+    def test_median_is_reported(self):
+        self.assertAlmostEqual(self.s[("seq", 8, 3, 1)]["median"], 11.0)
+
+    def test_mann_whitney_separated_samples(self):
+        p = analyze.mann_whitney_p([1, 2, 3, 4, 5], [6, 7, 8, 9, 10])
+        self.assertAlmostEqual(p, 0.0122, places=3)
+
+    def test_mann_whitney_identical_samples(self):
+        self.assertAlmostEqual(analyze.mann_whitney_p([5, 5, 5], [5, 5, 5]), 1.0)
+
+    def test_latex_table_kernel_filter(self):
+        import os
+        import tempfile
+        rows = self.rows + [dict(r, ksize=5) for r in self.rows]
+        s = analyze.summarize(rows)
+        analyze.add_speedup(s)
+        path = os.path.join(tempfile.mkdtemp(), "t.tex")
+        analyze.write_latex_table(s, 8, path, ksizes=[5])
+        tex = open(path, encoding="utf-8").read()
+        self.assertIn("5$" + chr(92) + "times$5", tex)
+        self.assertNotIn("3$" + chr(92) + "times$3", tex)
+
+    def test_sensitivity_table_compares_flags(self):
+        alt = {k: dict(v, mean=v["mean"] / 2) for k, v in self.s.items()}
+        analyze.add_speedup(alt)
+        buf = io.StringIO()
+        analyze.write_sensitivity_table(self.s, alt, 8, buf, threads=[1, 2])
+        tex = buf.getvalue()
+        self.assertIn("IA directa & 3 & 2 & 5.00 & 2.50 & 0.50", tex)
+
     def test_missing_seq_raises(self):
         rows = [r for r in self.rows if r["variant"] != "seq"]
         s = analyze.summarize(rows)

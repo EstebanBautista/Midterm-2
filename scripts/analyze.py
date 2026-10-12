@@ -44,7 +44,8 @@ def summarize(rows):
         std = float(t.std(ddof=1)) if len(t) > 1 else 0.0
         mean = float(t.mean())
         out[key] = {"mean": mean, "std": std, "min": float(t.min()),
-                    "max": float(t.max()), "cv": std / mean, "n": len(t)}
+                    "max": float(t.max()), "cv": std / mean, "n": len(t),
+                    "median": float(np.median(t))}
     return out
 
 
@@ -59,16 +60,64 @@ def add_speedup(summary):
         st["sp_self"] = own1["mean"] / st["mean"] if own1 else float("nan")
 
 
+def mann_whitney_p(a, b):
+    """Two-sided Mann-Whitney U test, normal approximation with tie and continuity correction."""
+    a = np.asarray(a, dtype=float)
+    b = np.asarray(b, dtype=float)
+    n1, n2 = len(a), len(b)
+    allv = np.concatenate([a, b])
+    order = allv.argsort(kind="mergesort")
+    ranks = np.empty(len(allv))
+    sorted_v = allv[order]
+    i = 0
+    tie_term = 0.0
+    while i < len(sorted_v):
+        j = i
+        while j + 1 < len(sorted_v) and sorted_v[j + 1] == sorted_v[i]:
+            j += 1
+        ranks[order[i:j + 1]] = (i + j) / 2.0 + 1.0
+        t = j - i + 1
+        tie_term += t ** 3 - t
+        i = j + 1
+    u1 = ranks[:n1].sum() - n1 * (n1 + 1) / 2.0
+    mu = n1 * n2 / 2.0
+    n = n1 + n2
+    var = n1 * n2 / 12.0 * ((n + 1) - tie_term / (n * (n - 1)))
+    if var <= 0:
+        return 1.0
+    z = (abs(u1 - mu) - 0.5) / np.sqrt(var)
+    if z <= 0:
+        return 1.0
+    from math import erfc, sqrt
+    return float(erfc(z / sqrt(2.0)))
+
+
+def compare_variants(rows, a, b):
+    """Mann-Whitney p-value per (n, ksize, threads) between variants a and b."""
+    groups = defaultdict(list)
+    for r in rows:
+        groups[(r["variant"], r["n"], r["ksize"], r["threads"])].append(r["time_ms"])
+    out = {}
+    for (v, n, ks, p), times in groups.items():
+        if v == a and (b, n, ks, p) in groups:
+            other = groups[(b, n, ks, p)]
+            out[(n, ks, p)] = {"p": mann_whitney_p(times, other),
+                               "median_a": float(np.median(times)),
+                               "median_b": float(np.median(other))}
+    return out
+
+
 def write_summary_csv(summary, path):
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["variant", "n", "ksize", "threads", "mean_ms", "std_ms", "min_ms",
-                    "max_ms", "cv", "runs", "speedup", "efficiency", "speedup_self"])
+                    "max_ms", "cv", "runs", "speedup", "efficiency", "speedup_self",
+                    "median_ms"])
         for key in sorted(summary, key=lambda k: (k[1], k[2], VARIANT_ORDER.index(k[0]), k[3])):
             s = summary[key]
             w.writerow([*key, f"{s['mean']:.4f}", f"{s['std']:.4f}", f"{s['min']:.4f}",
                         f"{s['max']:.4f}", f"{s['cv']:.4f}", s["n"], f"{s['sp']:.4f}",
-                        f"{s['ep']:.4f}", f"{s['sp_self']:.4f}"])
+                        f"{s['ep']:.4f}", f"{s['sp_self']:.4f}", f"{s['median']:.4f}"])
 
 
 def plot_metric(summary, n, metric, ylabel, path):
@@ -96,6 +145,8 @@ def plot_metric(summary, n, metric, ylabel, path):
             ax.plot(threads, threads, color="gray", ls=":", label="Ideal")
         if metric == "ep":
             ax.axhline(1.0, color="gray", ls=":", label="Ideal")
+        if metric == "mean":
+            ax.set_yscale("log")
         ax.set_xscale("log", base=2)
         ax.set_xticks(threads)
         ax.set_xticklabels([str(t) for t in threads])
@@ -111,8 +162,8 @@ def plot_metric(summary, n, metric, ylabel, path):
     plt.close(fig)
 
 
-def write_latex_table(summary, n, path):
-    ksizes = sorted({k[2] for k in summary if k[1] == n})
+def write_latex_table(summary, n, path, ksizes=None):
+    ksizes = sorted(ksizes or {k[2] for k in summary if k[1] == n})
     threads = sorted({k[3] for k in summary if k[1] == n})
     lines = [
         "\\begin{tabular}{llrrrr}",
@@ -154,6 +205,26 @@ def write_overview_table(summary, out):
     out.write("\n".join(lines) + "\n")
 
 
+def write_sensitivity_table(base, alt, n, out, threads=(1, 16)):
+    """Compares mean time and speedup between the main build (base) and an alternative build (alt)."""
+    bs = chr(92)
+    lines = [bs + "begin{tabular}{lrrrrrrr}", bs + "toprule",
+             "Variante & Kernel & $p$ & $" + bs + "bar{T}_{O2}$ (ms) & $" + bs + "bar{T}_{O3}$ (ms) & "
+             "$" + bs + "bar{T}_{O3}/" + bs + "bar{T}_{O2}$ & $S_p^{O2}$ & $S_p^{O3}$ " + bs + bs,
+             bs + "midrule"]
+    for v in VARIANT_ORDER:
+        for ks in sorted({k[2] for k in base if k[1] == n}):
+            for p in threads:
+                key = (v, n, ks, p)
+                if key not in base or key not in alt:
+                    continue
+                t0, t1 = base[key]["mean"], alt[key]["mean"]
+                lines.append(f"{LABELS[v]} & {ks} & {p} & {t0:.2f} & {t1:.2f} & {t1 / t0:.2f} & "
+                             f"{base[key]['sp']:.2f} & {alt[key]['sp']:.2f} " + bs + bs)
+    lines += [bs + "bottomrule", bs + "end{tabular}"]
+    out.write("\n".join(lines) + "\n")
+
+
 def main(raw_path):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     summary = summarize(load(raw_path))
@@ -170,6 +241,8 @@ def main(raw_path):
         plot_metric(summary, n, "sp_self", "Speedup relativo $T_1/T_p$",
                     os.path.join(fig_dir, f"speedup_relativo_{n}"))
         write_latex_table(summary, n, os.path.join(tab_dir, f"tabla_{n}.tex"))
+        write_latex_table(summary, n, os.path.join(tab_dir, f"tabla_{n}_a.tex"), ksizes=[3, 5])
+        write_latex_table(summary, n, os.path.join(tab_dir, f"tabla_{n}_b.tex"), ksizes=[7, 11])
     with open(os.path.join(tab_dir, "tabla_resumen.tex"), "w", encoding="utf-8") as f:
         write_overview_table(summary, f)
     print(f"analyzed {len(summary)} configurations")
