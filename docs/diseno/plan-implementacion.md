@@ -8,7 +8,7 @@
 
 **Tech Stack:** C++17 + OpenMP, GCC ≥ 14 (WinLibs POSIX/UCRT, enlace estático), Git Bash, Python 3.12 (numpy, matplotlib, unittest), LaTeX compilado con tectonic, Overleaf para edición en equipo.
 
-**Spec:** `docs/superpowers/specs/2026-10-12-benchmark-convolucion-paralela-design.md`
+**Spec:** `docs/diseno/especificacion.md`
 
 ## Global Constraints
 
