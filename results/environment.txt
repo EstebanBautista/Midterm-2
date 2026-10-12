@@ -1,0 +1,27 @@
+date: 2026-10-12T16:38:30-05:00
+
+
+Name                      : Intel(R) Core(TM) i7-10700F CPU @ 2.90GHz
+NumberOfCores             : 8
+NumberOfLogicalProcessors : 16
+MaxClockSpeed             : 2904
+L2CacheSize               : 2048
+L3CacheSize               : 16384
+
+
+
+RAM_GB: 31.9
+
+
+Caption     : Microsoft Windows 10 Pro
+Version     : 10.0.19045
+BuildNumber : 19045
+
+
+
+compiler: g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r1) 16.2.0
+flags: -O2 -fopenmp -std=c++17 -static
+python: Python 3.12.6
+numpy 2.1.3 matplotlib 3.9.2
+power_plan: GUID de plan de energ¡a: b4685fb2-c342-4a32-acb2-6eaaf23fb657  (Plus-Ultra)
+OMP_NUM_THREADS=unset OMP_PROC_BIND=unset OMP_WAIT_POLICY=unset
