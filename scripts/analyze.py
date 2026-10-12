@@ -135,6 +135,25 @@ def write_latex_table(summary, n, path):
         f.write("\n".join(lines) + "\n")
 
 
+def write_overview_table(summary, out):
+    """One row per (image, kernel): sequential time and best speedup (with its p) per variant."""
+    variants = [v for v in VARIANT_ORDER[1:] if any(k[0] == v for k in summary)]
+    cols = "ll" + "r" * (1 + len(variants))
+    head = " & ".join(LABELS[v] for v in variants)
+    lines = [f"\\begin{{tabular}}{{{cols}}}", "\\toprule",
+             f"Imagen & Kernel & $T_{{seq}}$ (ms) & {head} \\\\", "\\midrule"]
+    for n, ks in sorted({(k[1], k[2]) for k in summary}):
+        cells = []
+        for v in variants:
+            pts = [(s["sp"], k[3]) for k, s in summary.items() if k[0] == v and k[1] == n and k[2] == ks]
+            sp, p = max(pts)
+            cells.append(f"{sp:.2f} ({p})")
+        seq = summary[("seq", n, ks, 1)]["mean"]
+        lines.append(f"{n}$\\times${n} & {ks}$\\times${ks} & {seq:.2f} & " + " & ".join(cells) + " \\\\")
+    lines += ["\\bottomrule", "\\end{tabular}"]
+    out.write("\n".join(lines) + "\n")
+
+
 def main(raw_path):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     summary = summarize(load(raw_path))
@@ -149,6 +168,8 @@ def main(raw_path):
         plot_metric(summary, n, "sp", "Speedup $S_p$", os.path.join(fig_dir, f"speedup_{n}"))
         plot_metric(summary, n, "ep", "Eficiencia $E_p$", os.path.join(fig_dir, f"eficiencia_{n}"))
         write_latex_table(summary, n, os.path.join(tab_dir, f"tabla_{n}.tex"))
+    with open(os.path.join(tab_dir, "tabla_resumen.tex"), "w", encoding="utf-8") as f:
+        write_overview_table(summary, f)
     print(f"analyzed {len(summary)} configurations")
 
 

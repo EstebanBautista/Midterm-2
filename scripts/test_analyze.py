@@ -32,6 +32,13 @@ class AnalyzeTest(unittest.TestCase):
         self.assertAlmostEqual(ai2["ep"], 1.1)
         self.assertAlmostEqual(ai2["sp_self"], 2.0)
 
+    def test_overview_table_lists_seq_time_and_best_speedup(self):
+        buf = io.StringIO()
+        analyze.write_overview_table(self.s, buf)
+        tex = buf.getvalue()
+        self.assertIn(r"8$	imes$8 & 3$	imes$3 & 11.00", tex)
+        self.assertIn("2.20 (2)", tex)
+
     def test_missing_seq_raises(self):
         rows = [r for r in self.rows if r["variant"] != "seq"]
         s = analyze.summarize(rows)
